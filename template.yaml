@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+Transform: 'AWS::Serverless-2016-10-31'
 Parameters:
   DeviceID:
     Description: ID of the device
@@ -20,7 +20,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-
   ShadowUpdateTopicRule:
     Type: "AWS::IoT::TopicRule"
     Properties:
@@ -43,7 +42,6 @@ Resources:
                 Fn::GetAtt:
                 - DynamoDBTableRolePutItem
                 - Arn
-
   DynamoDBTableRolePutItem:
       Type: AWS::IAM::Role
       Properties:
@@ -76,3 +74,9 @@ Resources:
             - Effect: Allow
               Action: "iot:*"
               Resource: "*"
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+        Handler: index.handler
+        Runtime: nodejs6.10
+        CodeUri: lambda/
