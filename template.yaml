@@ -29,7 +29,7 @@ Resources:
         RuleDisabled: "false"
         Sql:
           Fn::Join: [ "", ["SELECT state.reported.* FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/accepted'"] ]
-        Actions: 
+        Actions:
           - DynamoDB:
               TableName:
                 Ref: DynamoDBTable
@@ -42,6 +42,18 @@ Resources:
                 Fn::GetAtt:
                 - DynamoDBTableRolePutItem
                 - Arn
+  StatusUpdateTopicRule:
+    Type: "AWS::IoT::TopicRule"
+    Properties:
+      TopicRulePayload:
+        AwsIotSqlVersion: "2016-03-23"
+        Description: "Save the thing shadow update."
+        RuleDisabled: "false"
+        Sql:
+          Fn::Join: [ "", ["SELECT state.reported.* FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/accepted'", " WHERE NOT isUndefined(state.reported.sensor)"] ]
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt MyFunction.Arn
   DynamoDBTableRolePutItem:
       Type: AWS::IAM::Role
       Properties:
