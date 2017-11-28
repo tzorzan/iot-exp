@@ -1,0 +1,9 @@
+{
+    "thing": "esp8266_04C085",
+    "state": {
+        "queue": [],
+        "display": "Booting",
+        "monitor": 0,
+        "sensor": false
+    }
+}

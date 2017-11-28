@@ -40,3 +40,6 @@ Temporary Items
 
 ### Mongoose OS App ###
 build/
+
+### AWS Project ###
+packaged.yaml

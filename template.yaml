@@ -42,18 +42,6 @@ Resources:
                 Fn::GetAtt:
                 - DynamoDBTableRolePutItem
                 - Arn
-  StatusUpdateTopicRule:
-    Type: "AWS::IoT::TopicRule"
-    Properties:
-      TopicRulePayload:
-        AwsIotSqlVersion: "2016-03-23"
-        Description: "Save the thing shadow update."
-        RuleDisabled: "false"
-        Sql:
-          Fn::Join: [ "", ["SELECT state.reported.* FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/accepted'", " WHERE NOT isUndefined(state.reported.sensor)"] ]
-        Actions:
-          - Lambda:
-              FunctionArn: !GetAtt MyFunction.Arn
   DynamoDBTableRolePutItem:
       Type: AWS::IAM::Role
       Properties:
@@ -86,9 +74,31 @@ Resources:
             - Effect: Allow
               Action: "iot:*"
               Resource: "*"
+  StatusUpdateTopicRule:
+    Type: "AWS::IoT::TopicRule"
+    Properties:
+      TopicRulePayload:
+        AwsIotSqlVersion: "2016-03-23"
+        Description: "Save the thing shadow update."
+        RuleDisabled: "false"
+        Sql:
+          Fn::Join: [ "", ["SELECT topic(3) AS thing, state.reported.* AS state FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/accepted'", " WHERE NOT isUndefined(state.reported.sensor)"] ]
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt MyFunction.Arn
   MyFunction:
     Type: AWS::Serverless::Function
     Properties:
         Handler: index.handler
         Runtime: nodejs6.10
         CodeUri: lambda/
+        Policies:
+          - AWSIoTConfigAccess
+  LambdaInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      SourceArn: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":rule/", !Ref "StatusUpdateTopicRule" ] ]
+      Action: lambda:InvokeFunction
+      Principal: iot.amazonaws.com
+      FunctionName: !GetAtt MyFunction.Arn
+      SourceAccount: !Ref AWS::AccountId
