@@ -89,7 +89,7 @@ Resources:
   SensorUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:
-        Handler: sensorupdatefunction.handler
+        Handler: sensorupdate.handler
         Runtime: nodejs6.10
         CodeUri: lambda/
         Policies:
