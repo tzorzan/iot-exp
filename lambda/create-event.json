@@ -1,0 +1,12 @@
+{
+    "RequestType": "Create",
+    "ServiceToken": "arn:aws:lambda:eu-central-1:241797080087:function:iot-exp-IotEndpointProvider-1FE9G5BX6QL83",
+    "ResponseURL": "https://cloudformation-custom-resource-response-eucentral1.s3.eu-central-1.amazonaws.com/arn%3Aaws%3Acloudformation%3Aeu-central-1%3A241797080087%3Astack/iot-exp/1d2b13c0-d43f-11e7-8e37-50a68ae7142a%7CIotEndpoint%7C2513b782-6f6c-4374-8389-81756f16c5fe?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20171128T132234Z&X-Amz-SignedHeaders=host&X-Amz-Expires=7199&X-Amz-Credential=AKIAI5OXHNMM7QAR64GQ%2F20171128%2Feu-central-1%2Fs3%2Faws4_request&X-Amz-Signature=396f2b03eed79c3d09dae1c8d65c92eaca1a8e99ce61b4d4a97a221b7a74c261",
+    "StackId": "arn:aws:cloudformation:eu-central-1:241797080087:stack/iot-exp/1d2b13c0-d43f-11e7-8e37-50a68ae7142a",
+    "RequestId": "2513b782-6f6c-4374-8389-81756f16c5fe",
+    "LogicalResourceId": "IotEndpoint",
+    "ResourceType": "Custom::IotEndpoint",
+    "ResourceProperties": {
+        "ServiceToken": "arn:aws:lambda:eu-central-1:241797080087:function:iot-exp-IotEndpointProvider-1FE9G5BX6QL83"
+    }
+}

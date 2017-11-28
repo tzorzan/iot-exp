@@ -82,18 +82,22 @@ Resources:
         Description: "Save the thing shadow update."
         RuleDisabled: "false"
         Sql:
-          Fn::Join: [ "", ["SELECT topic(3) AS thing, state.reported.* AS state FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/accepted'", " WHERE NOT isUndefined(state.reported.sensor)"] ]
+          Fn::Join: [ "", ["SELECT topic(3) AS thing, state FROM '$aws/things/", { "Ref": "DeviceID" }, "/shadow/update/delta'", " WHERE NOT isUndefined(state.sensor)"] ]
         Actions:
           - Lambda:
               FunctionArn: !GetAtt MyFunction.Arn
   MyFunction:
     Type: AWS::Serverless::Function
     Properties:
-        Handler: index.handler
+        Handler: myfunction.handler
         Runtime: nodejs6.10
         CodeUri: lambda/
         Policies:
           - AWSIoTConfigAccess
+          - AWSIoTDataAccess
+        Environment:
+          Variables:
+            IOT_ENDPOINT: !GetAtt IotEndpoint.IotEndpointAddress
   LambdaInvocationPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -102,3 +106,22 @@ Resources:
       Principal: iot.amazonaws.com
       FunctionName: !GetAtt MyFunction.Arn
       SourceAccount: !Ref AWS::AccountId
+  IotEndpointProvider:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: iotEndpointProvider.handler
+      Runtime: nodejs6.10
+      CodeUri: lambda/
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: 
+              - iot:DescribeEndpoint
+            Resource:
+              - '*'
+  IotEndpoint:
+    Type: 'Custom::IotEndpoint'
+    Properties:
+      ServiceToken: !GetAtt IotEndpointProvider.Arn
+

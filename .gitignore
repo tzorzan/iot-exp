@@ -40,6 +40,8 @@ Temporary Items
 
 ### Mongoose OS App ###
 build/
+conf9.json
+*.pem
 
 ### AWS Project ###
 packaged.yaml
