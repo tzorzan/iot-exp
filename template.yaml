@@ -98,13 +98,45 @@ Resources:
         Environment:
           Variables:
             IOT_ENDPOINT: !GetAtt IotEndpoint.IotEndpointAddress
-  LambdaInvocationPermission:
+  SensorUpdateInvocationPermission:
     Type: AWS::Lambda::Permission
     Properties:
       SourceArn: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":rule/", !Ref "SensorUpdateTopicRule" ] ]
       Action: lambda:InvokeFunction
       Principal: iot.amazonaws.com
       FunctionName: !GetAtt SensorUpdateFunction.Arn
+      SourceAccount: !Ref AWS::AccountId
+  DeviceConnectedTopicRule:
+    Type: "AWS::IoT::TopicRule"
+    Properties:
+      TopicRulePayload:
+        AwsIotSqlVersion: "2016-03-23"
+        Description: "Call lambda when device is connected."
+        RuleDisabled: "false"
+        Sql:
+          Fn::Join: [ "", ["SELECT * FROM '$aws/events/presence/connected/", { "Ref": "DeviceID" }, "'"] ]
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt DeviceConnectedFunction.Arn
+  DeviceConnectedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+        Handler: deviceconnected.handler
+        Runtime: nodejs6.10
+        CodeUri: lambda/
+        Policies:
+          - AWSIoTConfigAccess
+          - AWSIoTDataAccess
+        Environment:
+          Variables:
+            IOT_ENDPOINT: !GetAtt IotEndpoint.IotEndpointAddress
+  LambdaInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      SourceArn: !Join [ "", [ "arn:aws:iot:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":rule/", !Ref "DeviceConnectedTopicRule" ] ]
+      Action: lambda:InvokeFunction
+      Principal: iot.amazonaws.com
+      FunctionName: !GetAtt DeviceConnectedFunction.Arn
       SourceAccount: !Ref AWS::AccountId
   IotEndpointProvider:
     Type: 'AWS::Serverless::Function'

@@ -5,6 +5,13 @@ load('api_timer.js');
 load('api_rpc.js');
 load("api_aws.js");
 
+const ROLES = {
+  SENSOR: "sensor",
+  MONITOR: "monitor",
+  DISPLAY: "display",
+  BUTTON: "button"
+}; 
+
 let MONITOR = {
   UNKNOWN: 0,
   FREE: 1,
