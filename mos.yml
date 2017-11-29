@@ -28,7 +28,7 @@ conds:
   - when: mos.platform == "esp32"
     apply:
       config_schema:
-        - ["pins.led", 21]
+        - ["pins.led", 16]
         - ["pins.button", 0]
   - when: mos.platform == "esp8266"
     apply:
