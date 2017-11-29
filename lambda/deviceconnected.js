@@ -23,8 +23,8 @@ exports.handler = (event, context, callback) => {
         var shadow = { 
             state: {
                 desired: {
-                    resource: data.attributes[iot_exp_resource_attribute], 
-                    roles: data.attributes[iot_exp_roles_attribute]
+                    resource: data.attributes[iot_exp_resource_attribute],
+                    roles: data.attributes[iot_exp_roles_attribute].split(",")
                 }
             }
         };
