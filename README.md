@@ -2,9 +2,9 @@
 
 ## Overview
 
-This is an IoT Experiment app, s.
+This is an IoT Experiment app.
 
 ## How to install this app
 
 - Install and start [mos tool](https://mongoose-os.com/software.html)
-- Switch to the Project page, find and import this app, build and flash it:
+- Switch to the Project page, find and import this app, build and flash it.

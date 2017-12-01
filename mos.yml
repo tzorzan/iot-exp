@@ -1,5 +1,5 @@
-author: mongoose-os
-description: A Mongoose OS app skeleton
+author: tzorzan
+description: An IoT Experiment
 version: 1.0
 
 libs_version: ${mos.version}
@@ -8,7 +8,7 @@ mongoose_os_version: ${mos.version}
 
 # Optional. List of tags for online search.
 tags:
-  - c
+  - js
 
 # List of files / directories with C sources. No slashes at the end of dir names.
 sources:
@@ -20,6 +20,7 @@ filesystem:
 
 config_schema:
   - ["app", "o", {title: "IoT Experimental application"}]
+  - ["i2c.enable", true]
   - ["pins", "o", {title: "Pins layout"}]
   - ["pins.led", "i", -1, {title: "LED GPIO pin"}]
   - ["pins.button", "i", -1, {title: "Button GPIO pin"}]
@@ -38,7 +39,29 @@ conds:
 
 # List of libraries used by this app, in order of initialisation
 libs:
-  - origin: https://github.com/mongoose-os-libs/js-demo-bundle
+  - origin: https://github.com/mongoose-os-libs/aws
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+  - origin: https://github.com/mongoose-os-libs/dash
+  - origin: https://github.com/mongoose-os-libs/dht
+  - origin: https://github.com/mongoose-os-libs/gcp
+  - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/i2c
+  - origin: https://github.com/mongoose-os-libs/mjs
+#  - origin: https://github.com/mongoose-os-libs/ota-aws-shadow
+  - origin: https://github.com/mongoose-os-libs/ota-http-client
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
+  - origin: https://github.com/mongoose-os-libs/rpc-loopback
+  - origin: https://github.com/mongoose-os-libs/rpc-mqtt
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-service-gpio
+  - origin: https://github.com/mongoose-os-libs/rpc-service-i2c
+  - origin: https://github.com/mongoose-os-libs/rpc-service-ota
+  - origin: https://github.com/mongoose-os-libs/rpc-service-wifi
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/spi
+  - origin: https://github.com/mongoose-os-libs/vfs-dev-spi-flash
+  - origin: https://github.com/mongoose-os-libs/wifi
 
 # Used by the mos tool to catch mos binaries incompatible with this file format
 manifest_version: 2017-05-18

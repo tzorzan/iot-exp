@@ -4,8 +4,9 @@ load('api_sys.js');
 load('api_timer.js');
 load('api_rpc.js');
 load("api_aws.js");
+load("api_pwm.js");
 
-const ROLES = {
+let ROLES = {
   SENSOR: "sensor",
   MONITOR: "monitor",
   DISPLAY: "display",
@@ -26,8 +27,8 @@ GPIO.set_mode(button, GPIO.MODE_INPUT);
 print('LED GPIO:', led, 'BUTTON GPIO:', button);
 
 let state = {
-  resource: undefined,
-  roles: undefined,
+  resource: null,
+  roles: null,
   sensor: false,
   monitor: MONITOR.UNKNOWN,
   display: "Booting",
@@ -35,14 +36,21 @@ let state = {
 };
 
 function updateDevice() {
-  GPIO.write(led, !state.sensor);
+  print("UPDATING DEVICE USING STATE: ", JSON.stringify(state));
+  if(state.monitor === MONITOR.FREE) {
+      PWM.set(led, 50, 1);
+  } else if (state.monitor === MONITOR.OCCUPIED) {
+      PWM.set(led, 50, 0);
+  } else if (state.monitor === MONITOR.UNKNOWN) {
+      PWM.set(led, 10, 0.8);
+  }
 }
 
 updateDevice();
 
 AWS.Shadow.setStateHandler(function(data, event, reported, desired) {
   if (event === AWS.Shadow.CONNECTED) {
-    print("AWS.Shadow.CONNECTED: ", JSON.stringify(reported), JSON.stringify(desired));
+    print("AWS.Shadow.CONNECTED: ", JSON.stringify(reported), JSON.stringify(desired)); 
     AWS.Shadow.update(0, {reported: state});  // Report device state on connection
   } else if (event === AWS.Shadow.UPDATE_DELTA) {
     print("AWS.Shadow.UPDATE_DELTA: ", JSON.stringify(reported), JSON.stringify(desired));
