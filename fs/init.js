@@ -5,6 +5,7 @@ load('api_timer.js');
 load('api_rpc.js');
 load("api_aws.js");
 load("api_pwm.js");
+load('api_arduino_ssd1306.js');
 
 let ROLES = {
   SENSOR: "sensor",
@@ -26,6 +27,19 @@ GPIO.set_mode(led, GPIO.MODE_OUTPUT);
 GPIO.set_mode(button, GPIO.MODE_INPUT);
 print('LED GPIO:', led, 'BUTTON GPIO:', button);
 
+let display = Adafruit_SSD1306.create_i2c(4 /* RST GPIO */, Adafruit_SSD1306.RES_128_64);
+display.begin(Adafruit_SSD1306.SWITCHCAPVCC, 0x3C, true /* reset */);
+display.display();
+
+let showStr = function(display, str) {
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(Adafruit_SSD1306.WHITE);
+  display.setCursor(display.width() / 4, display.height() / 4);
+  display.write(str);
+  display.display();
+};
+
 let state = {
   resource: null,
   roles: null,
@@ -42,8 +56,10 @@ function updateDevice() {
   } else if (state.monitor === MONITOR.OCCUPIED) {
       PWM.set(led, 50, 0);
   } else if (state.monitor === MONITOR.UNKNOWN) {
-      PWM.set(led, 10, 0.8);
+      PWM.set(led, 10, 0.9);
   }
+  
+  showStr(display, state.display);
 }
 
 updateDevice();
