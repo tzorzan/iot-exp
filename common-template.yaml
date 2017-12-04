@@ -1,0 +1,109 @@
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: deviceid
+        AttributeType: S
+      KeySchema:
+      - AttributeName: deviceid
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  DynamoDBTableRolePutItem:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - iot.amazonaws.com
+            Action:
+            - sts:AssumeRole
+        Path: "/"
+        Policies:
+        - PolicyName: allow-put-item
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action: dynamodb:PutItem
+              Resource:
+                Fn::Join:
+                - ''
+                - - 'arn:aws:dynamodb:'
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":table/"
+                  - Ref: DynamoDBTable
+            - Effect: Allow
+              Action: "iot:*"
+              Resource: "*"
+  SensorUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+        Handler: sensorupdate.handler
+        Runtime: nodejs6.10
+        CodeUri: lambda/
+        Policies:
+          - AWSIoTConfigAccess
+          - AWSIoTDataAccess
+        Environment:
+          Variables:
+            IOT_ENDPOINT: !GetAtt IotEndpoint.IotEndpointAddress
+  DeviceConnectedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+        Handler: deviceconnected.handler
+        Runtime: nodejs6.10
+        CodeUri: lambda/
+        Policies:
+          - AWSIoTConfigAccess
+          - AWSIoTDataAccess
+        Environment:
+          Variables:
+            IOT_ENDPOINT: !GetAtt IotEndpoint.IotEndpointAddress
+  IotEndpointProvider:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: iotEndpointProvider.handler
+      Runtime: nodejs6.10
+      CodeUri: lambda/
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: 
+              - iot:DescribeEndpoint
+            Resource:
+              - '*'
+  IotEndpoint:
+    Type: 'Custom::IotEndpoint'
+    Properties:
+      ServiceToken: !GetAtt IotEndpointProvider.Arn
+Outputs:
+  DynamoDBTable:
+    Description: The DynamoDB table with updated status of devices
+    Value: !Ref DynamoDBTable
+    Export:
+      Name: !Sub "${AWS::StackName}-DynamoDBTable"
+  DynamoDBTableRolePutItemArn:
+    Description: The ARN of the DynamoDB role to update status
+    Value: !GetAtt DynamoDBTableRolePutItem.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-DynamoDBTableRolePutItemArn"
+  SensorUpdateFunctionArn:
+    Description: The ARN of the function invoked when sensor is updated.
+    Value: !GetAtt SensorUpdateFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-SensorUpdateFunctionArn"
+  DeviceConnectedFunctionArn:
+    Description: The ARN of the function invoked when a device is connected.
+    Value: !GetAtt DeviceConnectedFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-DeviceConnectedFunctionArn"
